@@ -175,6 +175,49 @@ footer a{font-family:var(--f-body);text-transform:none;font-size:13px;background
 :lang(ja) footer a{font-family:var(--f-ja)} :lang(zh) footer a{font-family:var(--f-zh)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media (max-width:640px){.date-bar{padding:12px 18px;gap:8px 18px}.date-bar b{font-size:18px}.search{width:100%}.wing{display:none}}
+
+/* tabs + same year */
+.view{display:contents}
+.tabs{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:8px}
+.tabs a{font-family:var(--f-round);font-size:13px;text-transform:lowercase;text-decoration:none;color:var(--ink-2);background:rgba(255,255,255,.7);padding:10px 18px;border-radius:99px;box-shadow:0 0 18px rgba(255,255,255,.8)}
+.tabs a[aria-current="page"]{background:var(--blue);color:#fff;box-shadow:0 0 18px rgba(91,147,230,.45)}
+.tabs a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.yr-head h2 em{font-family:var(--f-script);font-style:normal;font-weight:400;color:var(--blue);text-shadow:0 0 14px #fff;font-size:1.05em;margin-left:.1em}
+.yr-scroll{padding:6px 0}
+.yr-svg{display:block;width:100%;min-width:860px;height:auto;cursor:crosshair}
+.yr-grid{stroke:#fff;stroke-width:1;stroke-dasharray:2 5;opacity:.9}
+.yr-tick{font-family:var(--f-pixel);font-size:11px;fill:var(--ink-2);text-anchor:middle}
+.yr-band{opacity:.5;stroke:#fff;stroke-width:1.5}
+.yr-dot{fill:#fff;stroke-width:1.6;opacity:.75;transition:r .15s,opacity .15s}
+.yr-dot.on{opacity:1;r:5}
+.yr-cursor{stroke:var(--navy);stroke-width:1.5;stroke-dasharray:3 4}
+.yr-cursor-t{font-family:var(--f-pixel);font-size:13px;font-weight:700;fill:var(--navy);text-anchor:middle}
+.yr-legend{display:inline-flex;flex-wrap:wrap;gap:6px 14px}
+.yr-legend span{display:inline-flex;align-items:center;gap:6px}
+.yr-legend i{width:10px;height:10px;border-radius:50%}
+.yr-picker{position:relative;z-index:1;display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:14px 18px;background:rgba(255,255,255,.7);border-radius:26px;box-shadow:0 0 30px rgba(255,255,255,.9)}
+.yr-picker input[type=range]{flex:1 1 220px;accent-color:var(--blue)}
+.yr-step{appearance:none;border:0;background:#fff;color:var(--blue);width:34px;height:34px;border-radius:50%;font-size:20px;line-height:1;cursor:pointer;box-shadow:0 0 10px rgba(255,255,255,.9)}
+.yr-chips{display:flex;flex-wrap:wrap;gap:6px}
+.yr-chips .yr-chip{appearance:none;border:0;background:#fff;color:var(--ink);font:400 13px/1 var(--f-mix);padding:9px 14px;border-radius:99px;cursor:pointer}
+.yr-chips .yr-chip[aria-pressed="true"]{background:var(--navy);color:#fff}
+.yr-card{position:relative;z-index:1;background:rgba(255,255,255,.82);border-radius:30px;padding:22px 22px 18px;box-shadow:0 0 40px rgba(255,255,255,.95);display:grid;gap:18px}
+.yr-big{font-family:var(--f-pixel);font-weight:700;font-size:clamp(56px,9vw,104px);line-height:.9;color:#fff;text-shadow:0 4px 0 #a9c7f3,0 0 22px rgba(91,147,230,.35)}
+.yr-feat{max-width:72ch}
+.yr-feat p{margin:6px 0 0;font-family:var(--f-mix);font-size:15px;line-height:1.8;color:var(--navy);text-wrap:pretty}
+.yr-cols{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.yr-cols section{background:#fff;border-radius:22px;padding:14px 16px 8px;border-top:4px solid var(--c)}
+.yr-cols h3{margin:0 0 6px;font-family:var(--f-round);font-weight:400;font-size:16px;color:var(--c);display:flex;justify-content:space-between;align-items:baseline;text-transform:lowercase}
+:lang(ja) .yr-cols h3{font-family:var(--f-ja);font-weight:700} :lang(zh) .yr-cols h3{font-family:var(--f-zh);font-weight:500}
+.yr-cols h3 small{font-family:var(--f-pixel);font-size:12px;color:var(--ink-2)}
+.yr-cols ol{list-style:none;margin:0;padding:0}
+.yr-cols a{display:grid;grid-template-columns:3.2em 1fr;gap:6px;padding:7px 0;border-top:1px dashed #cfe0f7;text-decoration:none;font-size:13px;align-items:baseline}
+.yr-cols a:hover .tt{color:var(--blue)}
+.yr-cols .yy{font-family:var(--f-pixel);font-size:11px;color:var(--pale)}
+.yr-cols li.ex .yy{color:var(--navy);font-weight:700}
+.yr-cols .tt{font-family:var(--f-mix);font-weight:500;color:#3d5f96;overflow-wrap:anywhere}
+.yr-cols .ar{display:block;font-weight:400;color:var(--ink-2);font-size:12px}
+.yr-empty{margin:0;color:var(--ink-2)}
 </style>
 </head>
 <body>
@@ -206,6 +249,10 @@ footer a{font-family:var(--f-body);text-transform:none;font-size:13px;background
     </div>
   </header>
 
+  <nav class="tabs" aria-label="views"><a href="#world" aria-current="page" data-i="tabWorld"></a><a href="#year" data-i="tabYear"></a></nav>
+
+  <div id="v-world" class="view">
+
   <div class="controls">
     <div class="seg" role="group" id="seg"><button type="button" id="m-world" aria-pressed="true" data-i="world"></button><button type="button" id="m-grid" aria-pressed="false" data-i="grid"></button></div>
     <div class="group" id="moods"><span class="label">mood</span></div>
@@ -228,6 +275,29 @@ footer a{font-family:var(--f-body);text-transform:none;font-size:13px;background
 
   <div class="idx-head"><h2>TRACK INDEX</h2><p data-i="idx"></p></div>
   <div class="idx" id="idx"></div>
+
+  </div>
+
+  <div id="v-year" class="view" hidden>
+    <div class="idx-head yr-head"><h2><span data-i="yTitle"></span> <em>different world</em></h2><p data-i="ySub"></p></div>
+    <div class="map-panel">
+      <span class="label" style="padding-left:10px" data-i="river"></span>
+      <div class="map-scroll yr-scroll" id="yr-scroll"><svg id="yr-svg" class="yr-svg" role="img" aria-label="genre river"></svg></div>
+      <div class="map-note"><span class="yr-legend" id="yr-legend"></span><span data-i="tapHint"></span></div>
+    </div>
+    <div class="yr-picker">
+      <span class="label" data-i="pick"></span>
+      <button type="button" class="yr-step" id="yr-prev" aria-label="previous year">‹</button>
+      <input type="range" id="yr-range" aria-label="year">
+      <button type="button" class="yr-step" id="yr-next" aria-label="next year">›</button>
+      <div class="yr-chips" id="yr-chips"></div>
+    </div>
+    <div class="yr-card">
+      <div class="yr-big" id="yr-big"></div>
+      <div class="yr-feat" id="yr-feat" hidden><span class="label"></span><p></p></div>
+      <div class="yr-cols" id="yr-cols"></div>
+    </div>
+  </div>
 
   <footer><span>my band · love ya !</span><a href="https://open.spotify.com/playlist/2cYYfPU6nnBxOB52ppkima" target="_blank" rel="noopener" data-i="open"></a></footer>
 </div>
@@ -276,70 +346,71 @@ const I18N={
 let lang="ko";
 try{const s=localStorage.getItem("myband-lang");if(I18N[s])lang=s;else{const n=(navigator.language||"").slice(0,2);if(I18N[n])lang=n}}catch(e){}
 const L=()=>I18N[lang];
-// [title, artist, country, brightness 0=dark/wistful → 1=bright, energy 0→1]
+// [title, artist, country, brightness 0=dark/wistful → 1=bright, energy 0→1, original release year]
 const T=[
-["ただ君に晴れ","Yorushika","JP",.6,.7],["だから僕は音楽を辞めた","Yorushika","JP",.3,.7],["秒針を噛む","ZUTOMAYO","JP",.35,.85],["怪獣の花唄","Vaundy","JP",.65,.85],
-["あいつら全員同窓会","ZUTOMAYO","JP",.45,.8],["春を告げる","yama","JP",.4,.6],["白日","King Gnu","JP",.2,.55],["青と夏","Mrs. GREEN APPLE","JP",.9,.9],
-["晩餐歌 - Bansanka","tuki.","JP",.35,.35],["Mela!","Ryokuoushoku Shakai","JP",.9,.88],["不可幸力","Vaundy","JP",.35,.55],["藍二乗","Yorushika","JP",.3,.75],
-["群青","YOASOBI","JP",.75,.8],["高嶺の花子さん","back number","JP",.7,.75],["雨とカプチーノ","Yorushika","JP",.3,.55],["ベテルギウス","Yuuri","JP",.6,.55],
-["ドライフラワー","Yuuri","JP",.2,.35],["言って。","Yorushika","JP",.45,.7],["恋","Gen Hoshino","JP",.85,.75],["カタオモイ","Aimer","JP",.6,.3],
-["マリーゴールド","Aimyon","JP",.65,.55],["君はロックを聴かない","Aimyon","JP",.55,.6],["さよならエレジー","SUDA MASAKI","JP",.3,.8],["僕のこと","Mrs. GREEN APPLE","JP",.55,.45],
-["猫","DISH//","JP",.2,.4],["愛を伝えたいだとか","Aimyon","JP",.45,.5],["I LOVE...","OFFICIAL HIGE DANDISM","JP",.8,.6],["ライラック","Mrs. GREEN APPLE","JP",.85,.95],
-["花束","back number","JP",.7,.5],["ノーダウト","OFFICIAL HIGE DANDISM","JP",.55,.85],["RPG","SEKAI NO OWARI","JP",.9,.75],["レオ","Yuuri","JP",.45,.4],
-["キセキ","GReeeeN","JP",.75,.6],["天体観測","BUMP OF CHICKEN","JP",.6,.85],["W / X / Y","Tani Yuuki","JP",.5,.4],["勿忘","Awesome City Club","JP",.55,.5],
-["愛唄","GReeeeN","JP",.7,.45],["アイデア","Gen Hoshino","JP",.8,.8],["夏夜のマジック","indigo la End","JP",.4,.45],["Teenager Forever","King Gnu","JP",.5,.85],
-["新宝島","sakanaction","JP",.7,.9],["napori","Vaundy","JP",.55,.5],["ヨワネハキ","MAISONdes, 和ぬか, asmi","JP",.4,.8],["香水","Eito","JP",.3,.25],
-["なんでもないよ、","Macaroni Empitsu","JP",.6,.45],["いつか","Saucy Dog","JP",.35,.5],["虹色の戦争","SEKAI NO OWARI","JP",.6,.8],["おもかげ (produced by Vaundy)","milet, Aimer, Lilas","JP",.5,.65],
-["CHE.R.RY","YUI","JP",.9,.65],["ともに","WANIMA","JP",.85,.95],["シンデレラボーイ","Saucy Dog","JP",.4,.55],["セプテンバーさん","RADWIMPS","JP",.4,.5],
-["さくらんぼ","Ai Otsuka","JP",.95,.85],["明日も","SHISHAMO","JP",.8,.8],["リライト","ASIAN KUNG-FU GENERATION","JP",.3,.95],["キラーボール - 2022 Remaster","Gesu No Kiwami Otome","JP",.55,.9],
-["猟奇的なキスを私にして","Gesu No Kiwami Otome","JP",.3,.7],["長く短い祭","Sheena Ringo, 浮雲","JP",.5,.75],["ブルーベリー・ナイツ","Macaroni Empitsu","JP",.45,.55],["何なんw","Fujii Kaze","JP",.35,.5],
-["きらり","Fujii Kaze","JP",.75,.75],["サムライハート(Some Like It Hot!!)","SPYAIR","JP",.4,.85],["前前前世","RADWIMPS","JP",.7,.95],["丸ノ内サディスティック","Sheena Ringo","JP",.35,.5],
-["雨燦々","King Gnu","JP",.45,.65],["Burning Friday Night","Lucky Kilimanjaro","JP",.8,.8],["一途","King Gnu","JP",.15,.95],["クリスマスソング","back number","JP",.5,.4],
-["Automatic","Hikaru Utada","JP",.4,.45],["First Love","Hikaru Utada","JP",.2,.25],["Sk8er Boi","Avril Lavigne","CA",.55,.9],["Girlfriend","Avril Lavigne","CA",.7,.95],
-["What the Hell","Avril Lavigne","CA",.75,.9],["Complicated","Avril Lavigne","CA",.4,.55],["My Happy Ending","Avril Lavigne","CA",.3,.8],["Smells Like Teen Spirit","Nirvana","US",.1,.95],
-["Come As You Are","Nirvana","US",.1,.55],["Lithium","Nirvana","US",.2,.8],["Breed","Nirvana","US",.1,.95],["Everlong","Foo Fighters","US",.3,.9],
-["Wonderwall - Remastered","Oasis","GB",.4,.55],["Don't Look Back in Anger - Remastered","Oasis","GB",.45,.65],["Champagne Supernova","Oasis","GB",.35,.5],["Supermassive Black Hole","Muse","GB",.15,.85],
-["Time is Running Out","Muse","GB",.15,.8],["Starlight","Muse","GB",.55,.75],["Everybody's Changing","Keane","GB",.5,.6],["Song 2 - 2012 Remaster","Blur","GB",.5,.98],
-["Valerie (feat. Amy Winehouse) - Version Revisited","Mark Ronson, Amy Winehouse","GB",.85,.85],["Let It Be - Remastered 2009","The Beatles","GB",.5,.3],["Creep","Radiohead","GB",.05,.45],["No Surprises","Radiohead","GB",.25,.25],
-["Let Down","Radiohead","GB",.3,.45],["Love It If We Made It","The 1975","GB",.4,.85],["Sincerity Is Scary","The 1975","GB",.7,.5],["Summer","The Volunteers","KR",.6,.8],
-["고백","DELISPICE","KR",.55,.7],["chow chow","DELISPICE","KR",.35,.6],["항상 엔진을 켜둘께","DELISPICE","KR",.4,.45],["flying duck","cherryfilter","KR",.75,.9],
+["ただ君に晴れ","Yorushika","JP",.6,.7,2018],["だから僕は音楽を辞めた","Yorushika","JP",.3,.7,2019],["秒針を噛む","ZUTOMAYO","JP",.35,.85,2019],["怪獣の花唄","Vaundy","JP",.65,.85,2020],
+["あいつら全員同窓会","ZUTOMAYO","JP",.45,.8,2021],["春を告げる","yama","JP",.4,.6,2020],["白日","King Gnu","JP",.2,.55,2019],["青と夏","Mrs. GREEN APPLE","JP",.9,.9,2019],
+["晩餐歌 - Bansanka","tuki.","JP",.35,.35,2023],["Mela!","Ryokuoushoku Shakai","JP",.9,.88,2020],["不可幸力","Vaundy","JP",.35,.55,2020],["藍二乗","Yorushika","JP",.3,.75,2019],
+["群青","YOASOBI","JP",.75,.8,2021],["高嶺の花子さん","back number","JP",.7,.75,2014],["雨とカプチーノ","Yorushika","JP",.3,.55,2019],["ベテルギウス","Yuuri","JP",.6,.55,2021],
+["ドライフラワー","Yuuri","JP",.2,.35,2020],["言って。","Yorushika","JP",.45,.7,2017],["恋","Gen Hoshino","JP",.85,.75,2016],["カタオモイ","Aimer","JP",.6,.3,2016],
+["マリーゴールド","Aimyon","JP",.65,.55,2019],["君はロックを聴かない","Aimyon","JP",.55,.6,2017],["さよならエレジー","SUDA MASAKI","JP",.3,.8,2018],["僕のこと","Mrs. GREEN APPLE","JP",.55,.45,2019],
+["猫","DISH//","JP",.2,.4,2017],["愛を伝えたいだとか","Aimyon","JP",.45,.5,2017],["I LOVE...","OFFICIAL HIGE DANDISM","JP",.8,.6,2020],["ライラック","Mrs. GREEN APPLE","JP",.85,.95,2024],
+["花束","back number","JP",.7,.5,2011],["ノーダウト","OFFICIAL HIGE DANDISM","JP",.55,.85,2015],["RPG","SEKAI NO OWARI","JP",.9,.75,2013],["レオ","Yuuri","JP",.45,.4,2020],
+["キセキ","GReeeeN","JP",.75,.6,2008],["天体観測","BUMP OF CHICKEN","JP",.6,.85,2001],["W / X / Y","Tani Yuuki","JP",.5,.4,2021],["勿忘","Awesome City Club","JP",.55,.5,2021],
+["愛唄","GReeeeN","JP",.7,.45,2007],["アイデア","Gen Hoshino","JP",.8,.8,2018],["夏夜のマジック","indigo la End","JP",.4,.45,2016],["Teenager Forever","King Gnu","JP",.5,.85,2019],
+["新宝島","sakanaction","JP",.7,.9,2015],["napori","Vaundy","JP",.55,.5,2020],["ヨワネハキ","MAISONdes, 和ぬか, asmi","JP",.4,.8,2021],["香水","Eito","JP",.3,.25,2019],
+["なんでもないよ、","Macaroni Empitsu","JP",.6,.45,2021],["いつか","Saucy Dog","JP",.35,.5,2017],["虹色の戦争","SEKAI NO OWARI","JP",.6,.8,2010],["おもかげ (produced by Vaundy)","milet, Aimer, Lilas","JP",.5,.65,2021],
+["CHE.R.RY","YUI","JP",.9,.65,2007],["ともに","WANIMA","JP",.85,.95,2016],["シンデレラボーイ","Saucy Dog","JP",.4,.55,2021],["セプテンバーさん","RADWIMPS","JP",.4,.5,2006],
+["さくらんぼ","Ai Otsuka","JP",.95,.85,2003],["明日も","SHISHAMO","JP",.8,.8,2017],["リライト","ASIAN KUNG-FU GENERATION","JP",.3,.95,2004],["キラーボール - 2022 Remaster","Gesu No Kiwami Otome","JP",.55,.9,2012],
+["猟奇的なキスを私にして","Gesu No Kiwami Otome","JP",.3,.7,2014],["長く短い祭","Sheena Ringo, 浮雲","JP",.5,.75,2015],["ブルーベリー・ナイツ","Macaroni Empitsu","JP",.45,.55,2020],["何なんw","Fujii Kaze","JP",.35,.5,2019],
+["きらり","Fujii Kaze","JP",.75,.75,2021],["サムライハート(Some Like It Hot!!)","SPYAIR","JP",.4,.85,2010],["前前前世","RADWIMPS","JP",.7,.95,2016],["丸ノ内サディスティック","Sheena Ringo","JP",.35,.5,1999],
+["雨燦々","King Gnu","JP",.45,.65,2022],["Burning Friday Night","Lucky Kilimanjaro","JP",.8,.8,2015],["一途","King Gnu","JP",.15,.95,2021],["クリスマスソング","back number","JP",.5,.4,2015],
+["Automatic","Hikaru Utada","JP",.4,.45,1998],["First Love","Hikaru Utada","JP",.2,.25,1999],["Sk8er Boi","Avril Lavigne","CA",.55,.9,2002],["Girlfriend","Avril Lavigne","CA",.7,.95,2007],
+["What the Hell","Avril Lavigne","CA",.75,.9,2010],["Complicated","Avril Lavigne","CA",.4,.55,2002],["My Happy Ending","Avril Lavigne","CA",.3,.8,2004],["Smells Like Teen Spirit","Nirvana","US",.1,.95,1991],
+["Come As You Are","Nirvana","US",.1,.55,1991],["Lithium","Nirvana","US",.2,.8,1991],["Breed","Nirvana","US",.1,.95,1991],["Everlong","Foo Fighters","US",.3,.9,1997],
+["Wonderwall - Remastered","Oasis","GB",.4,.55,1995],["Don't Look Back in Anger - Remastered","Oasis","GB",.45,.65,1995],["Champagne Supernova","Oasis","GB",.35,.5,1995],["Supermassive Black Hole","Muse","GB",.15,.85,2006],
+["Time is Running Out","Muse","GB",.15,.8,2003],["Starlight","Muse","GB",.55,.75,2006],["Everybody's Changing","Keane","GB",.5,.6,2004],["Song 2 - 2012 Remaster","Blur","GB",.5,.98,1997],
+["Valerie (feat. Amy Winehouse) - Version Revisited","Mark Ronson, Amy Winehouse","GB",.85,.85,2007],["Let It Be - Remastered 2009","The Beatles","GB",.5,.3,1970],["Creep","Radiohead","GB",.05,.45,1993],["No Surprises","Radiohead","GB",.25,.25,1997],
+["Let Down","Radiohead","GB",.3,.45,1997],["Love It If We Made It","The 1975","GB",.4,.85,2018],["Sincerity Is Scary","The 1975","GB",.7,.5,2018],["Summer","The Volunteers","KR",.6,.8,2021],
+["고백","DELISPICE","KR",.55,.7,2003],["chow chow","DELISPICE","KR",.35,.6,1997],["항상 엔진을 켜둘께","DELISPICE","KR",.4,.45,2001],["flying duck","cherryfilter","KR",.75,.9,2003],
 // 101–
-["낭만고양이","체리필터","KR",.5,.9],["매직 카펫 라이드","자우림","KR",.9,.92],["스물다섯, 스물하나","자우림","KR",.45,.6],["있지","자우림","KR",.3,.55],
-["일탈","자우림","KR",.7,.95],["Caffeine","Kiro Akiyama","JP",.3,.8],["GLAMOROUS SKY","NANA starring Mika Nakashima","JP",.3,.85],["残酷な天使のテーゼ","Yoko Takahashi","JP",.5,.9],
-["LA・LA・LA LOVE SONG","Toshinobu Kubota, Naomi Campbell","JP",.9,.7],["群青日和","Tokyo Incidents","JP",.25,.95],["This Love","Maroon 5","US",.55,.75],["Lucky Strike","Maroon 5","US",.6,.85],
-["Sunday Morning","Maroon 5","US",.85,.45],["Still into You","Paramore","US",.85,.9],["Enter Sandman - Remastered 2021","Metallica","US",.05,.85],["we fell in love in october","girl in red","NO",.5,.35],
-["Beggin'","Måneskin","IT",.45,.88],["Teenagers","My Chemical Romance","US",.35,.9],["Red (Taylor's Version)","Taylor Swift","US",.45,.8],["Welcome to the Black Parade","My Chemical Romance","US",.15,.9],
-["Helena","My Chemical Romance","US",.1,.88],["Centuries","Fall Out Boy","US",.2,.9],["Sugar, We're Goin Down","Fall Out Boy","US",.35,.9],["Dance, Dance","Fall Out Boy","US",.4,.92],
-["Yellow","Coldplay","GB",.6,.45],["Viva La Vida","Coldplay","GB",.55,.75],["She's A Rainbow","The Rolling Stones","GB",.9,.55],["Don't Stop Me Now","Queen","GB",.95,.95],
-["Bohemian Rhapsody","Queen","GB",.2,.7],["夢中人","Faye Wong","CN",.55,.4],["If not winter","Wisp","US",.2,.3],["NO PAIN","실리카겔","KR",.6,.9],
-["Mercurial","실리카겔","KR",.2,.85],["josee!","데이먼스 이어","KR",.55,.4],["청우 (青雨)","Redoor","KR",.4,.4],["EVERYTHING","검정치마","KR",.55,.4],
-["그대에게","신해철","KR",.85,.9],["비밀번호 486","윤하","KR",.9,.8],["나에게로 떠나는 여행","버즈","KR",.65,.9],["예뻤어 You Were Beautiful","DAY6","KR",.3,.55],
-["서울의 달","김건모","KR",.3,.3],["한 페이지가 될 수 있게 Time of Our Life","DAY6","KR",.85,.9],["난춘","새소년","KR",.45,.5],["민들레 - single ver.","우효","KR",.7,.3],
-["TOMBOY","혁오","KR",.3,.6],["사랑했나봐 - 2016 Version","YB","KR",.2,.6],["September","Earth, Wind & Fire","US",.95,.8],["Square (2017)","백예린","KR",.75,.5],
-["Pretender","OFFICIAL HIGE DANDISM","JP",.4,.65],["Uptown Funk (feat. Bruno Mars)","Mark Ronson, Bruno Mars","GB",.95,.95],["我愛你","Cody·Lee(李)","JP",.7,.55],["위잉위잉","혁오","KR",.5,.5],
-["Loveholic","러브홀릭","KR",.75,.75],["와리가리","혁오","KR",.6,.7],["뜨거운 여름밤은 가고 남은 건 볼품없지만","잔나비","KR",.45,.6],["소녀","오혁","KR",.3,.25],
-["주저하는 연인들을 위해","잔나비","KR",.45,.35],["사랑하긴 했었나요 스쳐가는 인연이었나요","잔나비","KR",.55,.7],["Sweet Child O' Mine","Guns N' Roses","US",.6,.85],["항해","유다빈밴드","KR",.55,.7],
-["너에게 닿기를","10CM","KR",.7,.45],["Young Man","혁오, 落日飛車 Sunset Rollercoaster","KR",.45,.75],["옥탑방 (Rooftop)","엔플라잉","KR",.55,.75],["Counting Stars","OneRepublic","US",.65,.8],
-["신호등","이무진","KR",.5,.65],["Runaway Baby","Bruno Mars","US",.8,.95],["60's Cardin","Glen Check","KR",.75,.75],["What I've Done","Linkin Park","US",.15,.8],
-["Numb","Linkin Park","US",.1,.75],["In the End","Linkin Park","US",.1,.8],["Is there anybody","Lee Mujin","KR",.3,.5],["지구가 태양을 네 번","넬","KR",.25,.6],
-["예감 좋은 날","럼블피쉬","KR",.9,.85],["습관 (Bye Bye)","Rollercoaster","KR",.4,.45],["Hawaian Couple","HUS","KR",.8,.45],["멸종위기사랑","LEE CHANHYUK","KR",.45,.55],
-["0+0","HANRORO","KR",.7,.6],["영원은 그렇듯","Redoor","KR",.35,.4],["나의 머리는 녹색","015B, 유라","KR",.75,.6],["Choose me","BAND-MAID","JP",.3,.9],
-["S.S","PASSEPIED","JP",.65,.85],["Q.","PASSEPIED","JP",.6,.85],["FAMILIA","SILENT SIREN","JP",.8,.85],["rose","Anna Tsuchiya","JP",.15,.6],
-["All The Things She Said","t.A.T.u.","RU",.2,.85],["Bring Me To Life","Evanescence","US",.05,.9],["American Idiot","Green Day","US",.3,.95],["Basket Case","Green Day","US",.45,.95],
-["我們的愛","F.I.R.","TW",.35,.6],["情非得已","Harlem Yu","TW",.8,.6],["像晴天像雨天","Silence Wang","CN",.6,.4],["夜空中最亮的星","逃跑计划 EscapePlan","CN",.55,.7],
-["Tieduprightnow","Parcels","AU",.75,.7],["Red Room","Hiatus Kaiyote","AU",.4,.4],["Location Unknown ◐ (feat. BEKA) - Brooklyn Session","HONNE, BEKA","GB",.45,.45],["Warm on a Cold Night","HONNE","GB",.35,.5],
-["Inglés En Miami","Rawayana, Manuel Turizo","VE",.8,.7],["Se Vienen Cositas","Rawayana","VE",.85,.75],["Vámonos De Viaje","Bandalos Chinos","AR",.85,.65],["Departamento","Bandalos Chinos, Adanowsky","AR",.7,.6],
-["Melanin","Sauti Sol, Patoranking","KE",.75,.65],
-["Can't Stop","Red Hot Chili Peppers","US",.55,.9],["Dani California","Red Hot Chili Peppers","US",.45,.8],["Snow (Hey Oh)","Red Hot Chili Peppers","US",.5,.75],["Seven Nation Army","The White Stripes","US",.1,.85],
-["シュガーソングとビターステップ","UNISON SQUARE GARDEN","JP",.8,.9],["紅蓮華","LiSA","JP",.35,.9],["寄り酔い","和ぬか","JP",.4,.5],["God knows...","涼宮ハルヒ (CV.平野 綾)","JP",.35,.9],
-["ふざけてないぜ","ネクライトーキー","JP",.7,.85],["Midnight Train feat. Emi Meyer","Emi Meyer, DJ Okawari","JP",.45,.35],["そばかす","JUDY AND MARY","JP",.8,.88],["おじゃま虫 (feat. 初音ミク)","DECO*27, 初音ミク","JP",.55,.8]
+["낭만고양이","체리필터","KR",.5,.9,2002],["매직 카펫 라이드","자우림","KR",.9,.92,2000],["스물다섯, 스물하나","자우림","KR",.45,.6,2013],["있지","자우림","KR",.3,.55,2018],
+["일탈","자우림","KR",.7,.95,1997],["Caffeine","Kiro Akiyama","JP",.3,.8,2020],["GLAMOROUS SKY","NANA starring Mika Nakashima","JP",.3,.85,2005],["残酷な天使のテーゼ","Yoko Takahashi","JP",.5,.9,1995],
+["LA・LA・LA LOVE SONG","Toshinobu Kubota, Naomi Campbell","JP",.9,.7,1996],["群青日和","Tokyo Incidents","JP",.25,.95,2004],["This Love","Maroon 5","US",.55,.75,2002],["Lucky Strike","Maroon 5","US",.6,.85,2012],
+["Sunday Morning","Maroon 5","US",.85,.45,2002],["Still into You","Paramore","US",.85,.9,2013],["Enter Sandman - Remastered 2021","Metallica","US",.05,.85,1991],["we fell in love in october","girl in red","NO",.5,.35,2018],
+["Beggin'","Måneskin","IT",.45,.88,2017],["Teenagers","My Chemical Romance","US",.35,.9,2006],["Red (Taylor's Version)","Taylor Swift","US",.45,.8,2021],["Welcome to the Black Parade","My Chemical Romance","US",.15,.9,2006],
+["Helena","My Chemical Romance","US",.1,.88,2004],["Centuries","Fall Out Boy","US",.2,.9,2015],["Sugar, We're Goin Down","Fall Out Boy","US",.35,.9,2005],["Dance, Dance","Fall Out Boy","US",.4,.92,2005],
+["Yellow","Coldplay","GB",.6,.45,2000],["Viva La Vida","Coldplay","GB",.55,.75,2008],["She's A Rainbow","The Rolling Stones","GB",.9,.55,1967],["Don't Stop Me Now","Queen","GB",.95,.95,1978],
+["Bohemian Rhapsody","Queen","GB",.2,.7,1975],["夢中人","Faye Wong","CN",.55,.4,1994],["If not winter","Wisp","US",.2,.3,2025],["NO PAIN","실리카겔","KR",.6,.9,2022],
+["Mercurial","실리카겔","KR",.2,.85,2023],["josee!","데이먼스 이어","KR",.55,.4,2018],["청우 (青雨)","Redoor","KR",.4,.4,2021],["EVERYTHING","검정치마","KR",.55,.4,2017],
+["그대에게","신해철","KR",.85,.9,1991],["비밀번호 486","윤하","KR",.9,.8,2007],["나에게로 떠나는 여행","버즈","KR",.65,.9,2005],["예뻤어 You Were Beautiful","DAY6","KR",.3,.55,2017],
+["서울의 달","김건모","KR",.3,.3,2005],["한 페이지가 될 수 있게 Time of Our Life","DAY6","KR",.85,.9,2019],["난춘","새소년","KR",.45,.5,2020],["민들레 - single ver.","우효","KR",.7,.3,2017],
+["TOMBOY","혁오","KR",.3,.6,2017],["사랑했나봐 - 2016 Version","YB","KR",.2,.6,2016],["September","Earth, Wind & Fire","US",.95,.8,1978],["Square (2017)","백예린","KR",.75,.5,2019],
+["Pretender","OFFICIAL HIGE DANDISM","JP",.4,.65,2019],["Uptown Funk (feat. Bruno Mars)","Mark Ronson, Bruno Mars","GB",.95,.95,2014],["我愛你","Cody·Lee(李)","JP",.7,.55,2020],["위잉위잉","혁오","KR",.5,.5,2014],
+["Loveholic","러브홀릭","KR",.75,.75,2003],["와리가리","혁오","KR",.6,.7,2015],["뜨거운 여름밤은 가고 남은 건 볼품없지만","잔나비","KR",.45,.6,2016],["소녀","오혁","KR",.3,.25,2015],
+["주저하는 연인들을 위해","잔나비","KR",.45,.35,2019],["사랑하긴 했었나요 스쳐가는 인연이었나요","잔나비","KR",.55,.7,2014],["Sweet Child O' Mine","Guns N' Roses","US",.6,.85,1987],["항해","유다빈밴드","KR",.55,.7,2023],
+["너에게 닿기를","10CM","KR",.7,.45,2025],["Young Man","혁오, 落日飛車 Sunset Rollercoaster","KR",.45,.75,2024],["옥탑방 (Rooftop)","엔플라잉","KR",.55,.75,2019],["Counting Stars","OneRepublic","US",.65,.8,2013],
+["신호등","이무진","KR",.5,.65,2021],["Runaway Baby","Bruno Mars","US",.8,.95,2010],["60's Cardin","Glen Check","KR",.75,.75,2012],["What I've Done","Linkin Park","US",.15,.8,2007],
+["Numb","Linkin Park","US",.1,.75,2003],["In the End","Linkin Park","US",.1,.8,2000],["Is there anybody","Lee Mujin","KR",.3,.5,2020],["지구가 태양을 네 번","넬","KR",.25,.6,2014],
+["예감 좋은 날","럼블피쉬","KR",.9,.85,2004],["습관 (Bye Bye)","Rollercoaster","KR",.4,.45,1999],["Hawaian Couple","HUS","KR",.8,.45,2006],["멸종위기사랑","LEE CHANHYUK","KR",.45,.55,2025],
+["0+0","HANRORO","KR",.7,.6,2025],["영원은 그렇듯","Redoor","KR",.35,.4,2021],["나의 머리는 녹색","015B, 유라","KR",.75,.6,2019],["Choose me","BAND-MAID","JP",.3,.9,2017],
+["S.S","PASSEPIED","JP",.65,.85,2013],["Q.","PASSEPIED","JP",.6,.85,2020],["FAMILIA","SILENT SIREN","JP",.8,.85,2021],["rose","Anna Tsuchiya","JP",.15,.6,2007],
+["All The Things She Said","t.A.T.u.","RU",.2,.85,2002],["Bring Me To Life","Evanescence","US",.05,.9,2003],["American Idiot","Green Day","US",.3,.95,2004],["Basket Case","Green Day","US",.45,.95,1994],
+["我們的愛","F.I.R.","TW",.35,.6,2004],["情非得已","Harlem Yu","TW",.8,.6,2001],["像晴天像雨天","Silence Wang","CN",.6,.4,2025],["夜空中最亮的星","逃跑计划 EscapePlan","CN",.55,.7,2011],
+["Tieduprightnow","Parcels","AU",.75,.7,2018],["Red Room","Hiatus Kaiyote","AU",.4,.4,2021],["Location Unknown ◐ (feat. BEKA) - Brooklyn Session","HONNE, BEKA","GB",.45,.45,2018],["Warm on a Cold Night","HONNE","GB",.35,.5,2016],
+["Inglés En Miami","Rawayana, Manuel Turizo","VE",.8,.7,2023],["Se Vienen Cositas","Rawayana","VE",.85,.75,2023],["Vámonos De Viaje","Bandalos Chinos","AR",.85,.65,2018],["Departamento","Bandalos Chinos, Adanowsky","AR",.7,.6,2019],
+["Melanin","Sauti Sol, Patoranking","KE",.75,.65,2019],
+["Can't Stop","Red Hot Chili Peppers","US",.55,.9,2002],["Dani California","Red Hot Chili Peppers","US",.45,.8,2006],["Snow (Hey Oh)","Red Hot Chili Peppers","US",.5,.75,2006],["Seven Nation Army","The White Stripes","US",.1,.85,2003],
+["シュガーソングとビターステップ","UNISON SQUARE GARDEN","JP",.8,.9,2015],["紅蓮華","LiSA","JP",.35,.9,2019],["寄り酔い","和ぬか","JP",.4,.5,2022],["God knows...","涼宮ハルヒ (CV.平野 綾)","JP",.35,.9,2006],
+["ふざけてないぜ","ネクライトーキー","JP",.7,.85,2021],["Midnight Train feat. Emi Meyer","Emi Meyer, DJ Okawari","JP",.45,.35,2017],["そばかす","JUDY AND MARY","JP",.8,.88,1996],["おじゃま虫 (feat. 初音ミク)","DECO*27, 初音ミク","JP",.55,.8,2010],
+["邦画","indigo la End","JP",.3,.55,2021],["あなたは煙草　私はシャボン","Lovely Summer Chan","JP",.45,.5,2016]
 ];
 const css=getComputedStyle(document.documentElement);
 const col=k=>css.getPropertyValue(C[k].c).trim();
 function moodOf(b,e){return b<.5?(e>=.62?"ANGST":"MELANCHOLY"):(e>=.62?"ANTHEM":"WARM")}
 function hash(s){let h=2166136261;for(const ch of s){h^=ch.codePointAt(0);h=Math.imul(h,16777619)}return ((h>>>0)%1000)/1000}
 function link(t,a){const c=t.replace(/\s*\((feat|with|produced)[^)]*\)/gi,"").replace(/ - .*$/,"");return "https://open.spotify.com/search/"+encodeURIComponent(c+" "+a.split(",")[0])}
-const songs=T.map((r,i)=>{const [t,a,g,b,e]=r;return {no:i+1,t,a,g,b,e,mood:moodOf(b,e),url:link(t,a)}});
+const songs=T.map((r,i)=>{const [t,a,g,b,e,y]=r;return {no:i+1,t,a,g,b,e,y,mood:moodOf(b,e),url:link(t,a)}});
 const keys=Object.keys(C).filter(k=>songs.some(s=>s.g===k)).sort((a,b)=>songs.filter(s=>s.g===b).length-songs.filter(s=>s.g===a).length);
 document.getElementById("s-count").textContent=songs.length;document.getElementById("s-ctry").textContent=keys.length;
 document.getElementById("s-art").textContent=new Set(songs.map(s=>s.a.split(",")[0].trim())).size;
@@ -453,6 +524,82 @@ keys.forEach(k=>{const l=songs.filter(s=>s.g===k);const sec=document.createEleme
     a.innerHTML='<span class="no"></span><span class="tt"></span>';a.querySelector(".no").textContent=String(s.no).padStart(3,"0");
     const tt=a.querySelector(".tt");tt.textContent=s.t;const ar=document.createElement("span");ar.className="ar";ar.textContent=s.a;tt.append(ar);li.append(a);ol.append(li);s.li=li});idx.append(sec)});
 
+/* ============ SAME YEAR, DIFFERENT WORLD ============ */
+const YG=["JP","KR","US","GB","OT"];
+const YGC={JP:"--jp",KR:"--kr",US:"--us",GB:"--gb",OT:"--la"};
+const grp=g=>YG.includes(g)?g:"OT";
+const Y0=1965,Y1=2026,RW=1000,RH=380,RX=y=>40+(y-Y0)/(Y1-Y0)*(RW-80);
+const YUI={
+ ko:{tabWorld:"world map",tabYear:"same year, different world",yTitle:"SAME YEAR,",ySub:"연도를 고르면 그해(앞뒤 1년 포함) 각 나라에서 나온 밴드 곡이 나란히 보여요. 강의 폭은 그 시절 이 플레이리스트에 담긴 곡 수예요.",
+  river:"genre river",pick:"연도 고르기",other:"그 밖의 나라",empty:"이 무렵의 곡은 아직 플레이리스트에 없어요. 강이 굵은 쪽 연도를 골라 보세요.",near:"전후",feat:"이 해의 이야기",tapHint:"강을 누르면 그 연도로 이동해요"},
+ ja:{tabWorld:"world map",tabYear:"same year, different world",yTitle:"SAME YEAR,",ySub:"年を選ぶと、その年(前後1年を含む)に各国で生まれたバンド曲が並びます。川の太さは、その時代の曲がこのプレイリストに何曲あるかです。",
+  river:"genre river",pick:"年を選ぶ",other:"そのほかの国",empty:"この頃の曲はまだプレイリストにありません。川が太いあたりの年を選んでみてください。",near:"前後",feat:"この年の物語",tapHint:"川をタップするとその年へ移動します"},
+ en:{tabWorld:"world map",tabYear:"same year, different world",yTitle:"SAME YEAR,",ySub:"Pick a year to see the band songs each country put out that year (give or take one), side by side. The river's width is how many songs from that time are in this playlist.",
+  river:"genre river",pick:"pick a year",other:"elsewhere",empty:"No songs from around this year in the playlist yet. Try a year where the river runs wide.",near:"around",feat:"the story of this year",tapHint:"Tap the river to jump to that year"},
+ zh:{tabWorld:"world map",tabYear:"same year, different world",yTitle:"SAME YEAR,",ySub:"选一个年份，就能并排看到那一年（前后各一年）各国诞生的乐队歌曲。河流的宽度代表这个歌单里那个年代的歌曲数量。",
+  river:"genre river",pick:"选择年份",other:"其他国家",empty:"歌单里还没有这个年代的歌。试试河流较宽的年份吧。",near:"前后",feat:"这一年的故事",tapHint:"点击河流即可跳到那一年"}
+};
+Object.keys(YUI).forEach(k=>Object.assign(I18N[k],YUI[k]));
+const FEAT={
+ 1991:{chip:"1991 · grunge × 신해철",
+  ko:"1991년 9월 Nirvana의 〈Nevermind〉가 그런지를 메인스트림으로 끌어올렸고, 한 달 앞서 나온 Metallica의 블랙 앨범과 〈Enter Sandman〉은 메탈을 대중의 음악으로 만들었어요. 같은 해 서울에서는 신해철이 솔로 앨범 〈Myself〉에 무한궤도 시절의 '그대에게'를 다시 담았고, 이듬해 N.EX.T를 결성해 한국 록을 프로그레시브·메탈 쪽으로 넓혔어요. 무한궤도(1988) → 솔로(1990–91) → N.EX.T(1992)로 이어지는 계보예요.",
+  ja:"1991年9月、Nirvanaの『Nevermind』がグランジをメインストリームに押し上げ、その1か月前に出たMetallicaのブラックアルバムと「Enter Sandman」はメタルを大衆の音楽にしました。同じ年のソウルでは、シン・ヘチョルがソロアルバム『Myself』に無限軌道時代の「그대에게」を再録し、翌年N.EX.Tを結成して韓国ロックをプログレ・メタルへと広げました。無限軌道(1988)→ソロ(1990–91)→N.EX.T(1992)へと続く系譜です。",
+  en:"In September 1991 Nirvana's Nevermind pushed grunge into the mainstream, and a month earlier Metallica's Black Album and \"Enter Sandman\" had made metal a mass-market sound. That same year in Seoul, Shin Hae-chul re-recorded \"그대에게\" from his Muhan Gwedo days for his solo album Myself, and the next year formed N.EX.T, stretching Korean rock toward prog and metal: Muhan Gwedo (1988) → solo (1990–91) → N.EX.T (1992).",
+  zh:"1991年9月，Nirvana的《Nevermind》把垃圾摇滚推向主流；一个月前Metallica的“黑色专辑”与《Enter Sandman》让金属乐走进大众。同一年在首尔，申海澈在个人专辑《Myself》中重录了无限轨道时期的《그대에게》，次年组建N.EX.T，把韩国摇滚推向前卫与金属。这是一条无限轨道(1988)→个人时期(1990–91)→N.EX.T(1992)的脉络。"},
+ 2004:{chip:"2004 · American Idiot × リライト",
+  ko:"2004년 9월 Green Day의 〈American Idiot〉이 펑크 록 오페라로 화려하게 돌아왔고, 한 달 뒤 도쿄에서는 ASIAN KUNG-FU GENERATION의 〈リライト〉가 애니 〈강철의 연금술사〉 오프닝으로 J-록의 얼굴이 됐어요. 같은 해 서울에선 럼블피쉬가 〈예감 좋은 날〉을 냈고, 전후로 체리필터 〈오리 날다〉(2003)와 버즈 〈나에게로 떠나는 여행〉(2005)이 한국의 밴드 붐을 이끌었어요.",
+  ja:"2004年9月、Green Dayの「American Idiot」がパンク・ロック・オペラとして華々しく帰還し、その1か月後、東京ではASIAN KUNG-FU GENERATIONの「リライト」がアニメ『鋼の錬金術師』のオープニングとしてJ-ROCKの顔になりました。同じ年のソウルではランブルフィッシュが「예감 좋은 날」を発表し、前後してチェリーフィルター「오리 날다」(2003)、バズ「나에게로 떠나는 여행」(2005)が韓国のバンドブームを牽引しました。",
+  en:"In September 2004 Green Day came roaring back with the punk rock opera American Idiot; a month later in Tokyo, ASIAN KUNG-FU GENERATION's \"リライト\" became the face of J-rock as the Fullmetal Alchemist opening. In Seoul that year Rumble Fish released \"예감 좋은 날\", while Cherryfilter's \"오리 날다\" (2003) and Buzz's \"나에게로 떠나는 여행\" (2005) carried Korea's band boom on either side.",
+  zh:"2004年9月，Green Day以朋克摇滚歌剧《American Idiot》强势回归；一个月后在东京，ASIAN KUNG-FU GENERATION的《リライト》作为动画《钢之炼金术师》片头曲成为J-Rock的代表。同年首尔，Rumble Fish发表了《예감 좋은 날》，前后还有Cherry Filter《오리 날다》(2003)与Buzz《나에게로 떠나는 여행》(2005)带动韩国乐队热潮。"}
+};
+let ySel=2004;
+function gauss(arr,sig){const out=arr.map(()=>0);for(let i=0;i<arr.length;i++)for(let j=0;j<arr.length;j++){const d=i-j;out[i]+=arr[j]*Math.exp(-d*d/(2*sig*sig))}return out}
+function buildRiver(){const svg=document.getElementById("yr-svg");const N=Y1-Y0+1;
+  const cnt={};YG.forEach(g=>cnt[g]=new Array(N).fill(0));songs.forEach(s=>{if(s.y>=Y0&&s.y<=Y1)cnt[grp(s.g)][s.y-Y0]++});
+  const sm={};YG.forEach(g=>sm[g]=gauss(cnt[g],1.1));
+  const tot=new Array(N).fill(0).map((_,i)=>YG.reduce((a,g)=>a+sm[g][i],0));const mx=Math.max(...tot);
+  const mid=RH/2-6,k=(RH-90)/mx;
+  const bands={};let lower=tot.map(t=>mid-t*k/2);
+  YG.forEach(g=>{const up=lower.map((v,i)=>v+sm[g][i]*k);bands[g]={lo:lower,hi:up};lower=up});
+  const pt=(arr)=>arr.map((v,i)=>[RX(Y0+i),v]);
+  const smooth=p=>{let d="M"+p[0][0]+" "+p[0][1];for(let i=1;i<p.length;i++){const a=p[i-1],b=p[i],cx=(a[0]+b[0])/2;d+=" C"+cx+" "+a[1]+" "+cx+" "+b[1]+" "+b[0]+" "+b[1]}return d};
+  let s="";
+  for(let y=1965;y<=2025;y+=5){const x=RX(y);s+='<line class="yr-grid" x1="'+x+'" x2="'+x+'" y1="18" y2="'+(RH-24)+'"/>'+(y%10===0?'<text class="yr-tick" x="'+x+'" y="'+(RH-8)+'">'+y+'</text>':'')}
+  YG.forEach(g=>{const top=pt(bands[g].hi),bot=pt(bands[g].lo).reverse();let d=smooth(top);d+=" L"+bot[0][0]+" "+bot[0][1];d+=smooth(bot).replace(/^M[^C]*/,"");d+="Z";
+    s+='<path class="yr-band" d="'+d+'" style="fill:var('+YGC[g]+')"/>'});
+  songs.forEach((t,i)=>{if(!(t.y>=Y0))return;const g=grp(t.g),b=bands[g],ix=t.y-Y0;const j=hash(t.t+t.a)-.5,j2=hash(t.a+t.t);
+    const x=RX(t.y+j*.7);const lo=b.lo[ix],hi=b.hi[ix];const y=lo+(hi-lo)*(.18+.64*j2);
+    s+='<circle class="yr-dot" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.2" style="stroke:var('+YGC[g]+')" data-i="'+i+'"><title>'+esc(t.t+" — "+t.a+" ("+t.y+")")+'</title></circle>'});
+  s+='<line id="yr-cursor" class="yr-cursor" y1="10" y2="'+(RH-22)+'"/><text id="yr-cursor-t" class="yr-cursor-t" y="12"></text>';
+  svg.setAttribute("viewBox","0 0 "+RW+" "+RH);svg.innerHTML=s;
+  svg.onclick=e=>{const r=svg.getBoundingClientRect();const x=(e.clientX-r.left)/r.width*RW;setYear(Math.round(Y0+(x-40)/(RW-80)*(Y1-Y0)))};
+  const lg=document.getElementById("yr-legend");lg.innerHTML=YG.map(g=>'<span><i style="background:var('+YGC[g]+')"></i>'+esc(g==="OT"?L().other:L().ctry[g])+'</span>').join("")}
+function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function setYear(y){ySel=Math.max(Y0,Math.min(Y1,y));const r=document.getElementById("yr-range");r.value=ySel;renderYear()}
+function renderYear(){const D=L(),x=RX(ySel);const c=document.getElementById("yr-cursor"),ct=document.getElementById("yr-cursor-t");
+  if(c){c.setAttribute("x1",x);c.setAttribute("x2",x);ct.setAttribute("x",x);ct.textContent=ySel}
+  document.querySelectorAll(".yr-dot").forEach(d=>{const s=songs[+d.dataset.i];d.classList.toggle("on",Math.abs(s.y-ySel)<=1)});
+  document.querySelectorAll(".yr-chips button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.y===ySel));
+  document.getElementById("yr-big").textContent=ySel;
+  const f=FEAT[ySel];const fe=document.getElementById("yr-feat");fe.hidden=!f;if(f){fe.querySelector("p").textContent=f[lang]||f.en;fe.querySelector(".label").textContent=D.feat}
+  const near=songs.filter(s=>Math.abs(s.y-ySel)<=1);const cols=document.getElementById("yr-cols");
+  if(!near.length){cols.innerHTML='<p class="yr-empty">'+esc(D.empty)+'</p>';return}
+  const by={};near.forEach(s=>{(by[s.g]=by[s.g]||[]).push(s)});
+  const order=Object.keys(by).sort((a,b)=>(YG.indexOf(grp(a))-YG.indexOf(grp(b)))||by[b].length-by[a].length);
+  cols.innerHTML=order.map(k=>{const list=by[k].sort((a,b)=>Math.abs(a.y-ySel)-Math.abs(b.y-ySel)||a.y-b.y);
+    return '<section style="--c:var('+(COLOR[k]||"--blue")+')"><h3>'+esc(D.ctry[k]||k)+'<small>'+list.length+'</small></h3><ol>'+list.map(s=>
+      '<li class="'+(s.y===ySel?"ex":"")+'"><a href="'+esc(s.url)+'" target="_blank" rel="noopener"><span class="yy">'+s.y+'</span><span class="tt">'+esc(s.t)+'<span class="ar">'+esc(s.a)+'</span></span></a></li>').join("")+'</ol></section>'}).join("")}
+function initYear(){const chips=document.getElementById("yr-chips");chips.innerHTML=Object.entries(FEAT).map(([y,f])=>'<button type="button" class="yr-chip" data-y="'+y+'">'+esc(f.chip)+'</button>').join("");
+  chips.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>setYear(+b.dataset.y)));
+  const r=document.getElementById("yr-range");r.min=Y0;r.max=Y1;r.value=ySel;r.addEventListener("input",()=>{ySel=+r.value;renderYear()});
+  document.getElementById("yr-prev").addEventListener("click",()=>setYear(ySel-1));document.getElementById("yr-next").addEventListener("click",()=>setYear(ySel+1))}
+initYear();
+function route(){const v=location.hash==="#year"?"year":"world";document.getElementById("v-world").hidden=v!=="world";document.getElementById("v-year").hidden=v!=="year";
+  document.querySelectorAll(".tabs a").forEach(a=>{if(a.getAttribute("href")==="#"+v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+  if(v==="year"){buildRiver();renderYear();const sc2=document.getElementById("yr-scroll");if(sc2.scrollWidth>sc2.clientWidth)sc2.scrollLeft=(sc2.scrollWidth-sc2.clientWidth)*.7}
+  else{requestAnimationFrame(()=>{window.dispatchEvent(new Event("resize"))})}}
+addEventListener("hashchange",route);
+
 /* language */
 function applyLang(l){lang=l;const D=L();document.documentElement.lang=l;
   document.querySelectorAll("[data-i]").forEach(el=>{el.textContent=D[el.dataset.i]});
@@ -465,9 +612,9 @@ function applyLang(l){lang=l;const D=L();document.documentElement.lang=l;
   songs.forEach(s=>s.el.setAttribute("aria-label",s.t+" — "+s.a+" ("+D.openIn+")"));
   if(selected)document.getElementById("c-m").textContent=meta(selected);
   document.querySelectorAll("#lang button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===l));
-  try{localStorage.setItem("myband-lang",l)}catch(e){}apply()}
+  try{localStorage.setItem("myband-lang",l)}catch(e){}apply();if(!document.getElementById("v-year").hidden){buildRiver();renderYear()}}
 document.querySelectorAll("#lang button").forEach(b=>b.addEventListener("click",()=>applyLang(b.dataset.l)));
-applyLang(lang);
+applyLang(lang);route();
 
 place();
 const sc=document.getElementById("scroller");requestAnimationFrame(()=>{if(sc.scrollWidth>sc.clientWidth)sc.scrollLeft=(sc.scrollWidth-sc.clientWidth)*.75;else document.getElementById("m-hint").hidden=true});
