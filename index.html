@@ -217,6 +217,13 @@ footer a{font-family:var(--f-body);text-transform:none;font-size:13px;background
 .yr-cols li.ex .yy{color:var(--navy);font-weight:700}
 .yr-cols .tt{font-family:var(--f-mix);font-weight:500;color:#3d5f96;overflow-wrap:anywhere}
 .yr-cols .ar{display:block;font-weight:400;color:var(--ink-2);font-size:12px}
+.yr-dot.x{fill:var(--sky-2);stroke-dasharray:2 1.6;opacity:.7}
+.yr-legend .dk i{width:10px;height:10px;border-radius:50%;background:#fff;border:1.6px solid var(--ink-2)}
+.yr-legend .dk i.d2{background:var(--sky-2);border-style:dashed}
+.yr-tg{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink);cursor:pointer}
+.yr-tg input{accent-color:var(--blue);width:16px;height:16px}
+.yr-cols .xt{display:inline-block;margin-left:6px;font-family:var(--f-body);font-weight:400;font-size:10.5px;color:var(--blue);background:var(--sky-2);padding:1px 7px;border-radius:99px;vertical-align:2px}
+.yr-cols li.xp .tt{color:var(--ink-2)}
 .yr-empty{margin:0;color:var(--ink-2)}
 </style>
 </head>
@@ -291,6 +298,7 @@ footer a{font-family:var(--f-body);text-transform:none;font-size:13px;background
       <input type="range" id="yr-range" aria-label="year">
       <button type="button" class="yr-step" id="yr-next" aria-label="next year">›</button>
       <div class="yr-chips" id="yr-chips"></div>
+      <label class="yr-tg"><input type="checkbox" id="yr-x" checked> <span id="yr-x-l"></span></label>
     </div>
     <div class="yr-card">
       <div class="yr-big" id="yr-big"></div>
@@ -525,18 +533,40 @@ keys.forEach(k=>{const l=songs.filter(s=>s.g===k);const sec=document.createEleme
     const tt=a.querySelector(".tt");tt.textContent=s.t;const ar=document.createElement("span");ar.className="ar";ar.textContent=s.a;tt.append(ar);li.append(a);ol.append(li);s.li=li});idx.append(sec)});
 
 /* ============ SAME YEAR, DIFFERENT WORLD ============ */
+// Era picks: representative band songs NOT in the playlist, shown only in the Same Year tab. [title, artist, country, year]
+const X=[
+["해변으로 가요","키보이스","KR",1970],["미인","신중현과 엽전들","KR",1974],["아니 벌써","산울림","KR",1977],["내 마음에 주단을 깔고","산울림","KR",1978],["한동안 뜸했었지","사랑과 평화","KR",1978],
+["어쩌다 마주친 그대","송골매","KR",1982],["행진","들국화","KR",1985],["희야","부활","KR",1986],["크게 라디오를 켜고","시나위","KR",1986],["어떤이의 꿈","봄여름가을겨울","KR",1989],
+["도시인","N.EX.T","KR",1992],["날아라 병아리","N.EX.T","KR",1994],["푸른 양철 스쿨버스","언니네 이발관","KR",1996],["Hey Hey Hey","자우림","KR",1997],["말달리자","크라잉넛","KR",1998],
+["겁쟁이","버즈","KR",2005],["나는 나비","YB","KR",2006],["기억을 걷는 시간","넬","KR",2008],["싸구려 커피","장기하와 얼굴들","KR",2008],["Antifreeze","검정치마","KR",2008],
+["風をあつめて","はっぴいえんど","JP",1971],["タイムマシンにおねがい","サディスティック・ミカ・バンド","JP",1974],["DOWN TOWN","シュガー・ベイブ","JP",1975],["勝手にシンドバッド","サザンオールスターズ","JP",1978],["RYDEEN","YELLOW MAGIC ORCHESTRA","JP",1979],
+["フレンズ","REBECCA","JP",1985],["B・BLUE","BOØWY","JP",1986],["リンダリンダ","THE BLUE HEARTS","JP",1987],["紅","X","JP",1989],["Diamonds","プリンセス プリンセス","JP",1989],
+["innocent world","Mr.Children","JP",1994],["ロビンソン","スピッツ","JP",1995],["JAM","THE YELLOW MONKEY","JP",1996],["HOWEVER","GLAY","JP",1997],["HONEY","L'Arc~en~Ciel","JP",1998],
+["アゲハ蝶","ポルノグラフィティ","JP",2001],["世界はそれを愛と呼ぶんだぜ","サンボマスター","JP",2005],["Space Sonic","ELLEGARDEN","JP",2005],["シャングリラ","チャットモンチー","JP",2006],["若者のすべて","フジファブリック","JP",2007],
+["Dream On","Aerosmith","US",1973],["Sweet Home Alabama","Lynyrd Skynyrd","US",1974],["Blitzkrieg Bop","Ramones","US",1976],["Hotel California","Eagles","US",1976],["Heart of Glass","Blondie","US",1978],
+["Once in a Lifetime","Talking Heads","US",1980],["Don't Stop Believin'","Journey","US",1981],["Jump","Van Halen","US",1984],["Livin' on a Prayer","Bon Jovi","US",1986],["The One I Love","R.E.M.","US",1987],
+["Alive","Pearl Jam","US",1991],["Under the Bridge","Red Hot Chili Peppers","US",1991],["Buddy Holly","Weezer","US",1994],["1979","The Smashing Pumpkins","US",1995],["Semi-Charmed Life","Third Eye Blind","US",1997],
+["Last Nite","The Strokes","US",2001],["Maps","Yeah Yeah Yeahs","US",2003],["Mr. Brightside","The Killers","US",2004],["Misery Business","Paramore","US",2007],["Use Somebody","Kings of Leon","US",2008],
+["Stairway to Heaven","Led Zeppelin","GB",1971],["Wish You Were Here","Pink Floyd","GB",1975],["Anarchy in the U.K.","Sex Pistols","GB",1976],["Roxanne","The Police","GB",1978],["London Calling","The Clash","GB",1979],
+["Love Will Tear Us Apart","Joy Division","GB",1980],["Hungry Like the Wolf","Duran Duran","GB",1982],["Every Breath You Take","The Police","GB",1983],["There Is a Light That Never Goes Out","The Smiths","GB",1986],["Just Like Heaven","The Cure","GB",1987],
+["Animal Nitrate","Suede","GB",1993],["Common People","Pulp","GB",1995],["Alright","Supergrass","GB",1995],["Bitter Sweet Symphony","The Verve","GB",1997],["Why Does It Always Rain on Me?","Travis","GB",1999],
+["Take Me Out","Franz Ferdinand","GB",2004],["Can't Stand Me Now","The Libertines","GB",2004],["I Bet You Look Good on the Dancefloor","Arctic Monkeys","GB",2005],["Chasing Cars","Snow Patrol","GB",2006],["Fire","Kasabian","GB",2009]
+];
+const xs=X.map(([t,a,g,y])=>({t,a,g,y,x:1,url:link(t,a)}));
+let showX=true;const YS=()=>showX?songs.concat(xs):songs;
+
 const YG=["JP","KR","US","GB","OT"];
 const YGC={JP:"--jp",KR:"--kr",US:"--us",GB:"--gb",OT:"--la"};
 const grp=g=>YG.includes(g)?g:"OT";
 const Y0=1965,Y1=2026,RW=1000,RH=380,RX=y=>40+(y-Y0)/(Y1-Y0)*(RW-80);
 const YUI={
- ko:{tabWorld:"world map",tabYear:"same year, different world",yTitle:"SAME YEAR,",ySub:"연도를 고르면 그해(앞뒤 1년 포함) 각 나라에서 나온 밴드 곡이 나란히 보여요. 강의 폭은 그 시절 이 플레이리스트에 담긴 곡 수예요.",
+ ko:{xTag:"시대 대표곡",dotP:"플레이리스트 곡",dotX:"시대 대표곡 (플레이리스트 밖)",xToggle:"70–2000년대 한·일·미·영 대표곡 함께 보기",tabWorld:"world map",tabYear:"same year, different world",yTitle:"SAME YEAR,",ySub:"연도를 고르면 그해(앞뒤 1년 포함) 각 나라에서 나온 밴드 곡이 나란히 보여요. 강의 폭은 그 시절 곡 수예요. 플레이리스트 곡에 70–2000년대 한·일·미·영 시대 대표곡을 더해 볼 수 있어요.",
   river:"genre river",pick:"연도 고르기",other:"그 밖의 나라",empty:"이 무렵의 곡은 아직 플레이리스트에 없어요. 강이 굵은 쪽 연도를 골라 보세요.",near:"전후",feat:"이 해의 이야기",tapHint:"강을 누르면 그 연도로 이동해요"},
- ja:{tabWorld:"world map",tabYear:"same year, different world",yTitle:"SAME YEAR,",ySub:"年を選ぶと、その年(前後1年を含む)に各国で生まれたバンド曲が並びます。川の太さは、その時代の曲がこのプレイリストに何曲あるかです。",
+ ja:{xTag:"時代の代表曲",dotP:"プレイリストの曲",dotX:"時代の代表曲(プレイリスト外)",xToggle:"70〜2000年代の日韓米英の代表曲も表示",tabWorld:"world map",tabYear:"same year, different world",yTitle:"SAME YEAR,",ySub:"年を選ぶと、その年(前後1年を含む)に各国で生まれたバンド曲が並びます。川の太さはその時代の曲の数。プレイリストの曲に、70〜2000年代の日韓米英の時代の代表曲を加えて見られます。",
   river:"genre river",pick:"年を選ぶ",other:"そのほかの国",empty:"この頃の曲はまだプレイリストにありません。川が太いあたりの年を選んでみてください。",near:"前後",feat:"この年の物語",tapHint:"川をタップするとその年へ移動します"},
- en:{tabWorld:"world map",tabYear:"same year, different world",yTitle:"SAME YEAR,",ySub:"Pick a year to see the band songs each country put out that year (give or take one), side by side. The river's width is how many songs from that time are in this playlist.",
+ en:{xTag:"era pick",dotP:"in the playlist",dotX:"era pick (not in the playlist)",xToggle:"show era picks from KR · JP · US · UK, 70s–2000s",tabWorld:"world map",tabYear:"same year, different world",yTitle:"SAME YEAR,",ySub:"Pick a year to see the band songs each country put out that year (give or take one), side by side. The river's width is how many songs come from that time — the playlist plus era picks from Korea, Japan, the US and the UK, 70s–2000s.",
   river:"genre river",pick:"pick a year",other:"elsewhere",empty:"No songs from around this year in the playlist yet. Try a year where the river runs wide.",near:"around",feat:"the story of this year",tapHint:"Tap the river to jump to that year"},
- zh:{tabWorld:"world map",tabYear:"same year, different world",yTitle:"SAME YEAR,",ySub:"选一个年份，就能并排看到那一年（前后各一年）各国诞生的乐队歌曲。河流的宽度代表这个歌单里那个年代的歌曲数量。",
+ zh:{xTag:"时代代表曲",dotP:"歌单中的歌",dotX:"时代代表曲（不在歌单中）",xToggle:"同时显示70–2000年代韩日美英代表曲",tabWorld:"world map",tabYear:"same year, different world",yTitle:"SAME YEAR,",ySub:"选一个年份，就能并排看到那一年（前后各一年）各国诞生的乐队歌曲。河流的宽度代表那个年代的歌曲数量，可在歌单之外加入70–2000年代韩日美英的时代代表曲。",
   river:"genre river",pick:"选择年份",other:"其他国家",empty:"歌单里还没有这个年代的歌。试试河流较宽的年份吧。",near:"前后",feat:"这一年的故事",tapHint:"点击河流即可跳到那一年"}
 };
 Object.keys(YUI).forEach(k=>Object.assign(I18N[k],YUI[k]));
@@ -555,7 +585,7 @@ const FEAT={
 let ySel=2004;
 function gauss(arr,sig){const out=arr.map(()=>0);for(let i=0;i<arr.length;i++)for(let j=0;j<arr.length;j++){const d=i-j;out[i]+=arr[j]*Math.exp(-d*d/(2*sig*sig))}return out}
 function buildRiver(){const svg=document.getElementById("yr-svg");const N=Y1-Y0+1;
-  const cnt={};YG.forEach(g=>cnt[g]=new Array(N).fill(0));songs.forEach(s=>{if(s.y>=Y0&&s.y<=Y1)cnt[grp(s.g)][s.y-Y0]++});
+  const cnt={};YG.forEach(g=>cnt[g]=new Array(N).fill(0));YS().forEach(s=>{if(s.y>=Y0&&s.y<=Y1)cnt[grp(s.g)][s.y-Y0]++});
   const sm={};YG.forEach(g=>sm[g]=gauss(cnt[g],1.1));
   const tot=new Array(N).fill(0).map((_,i)=>YG.reduce((a,g)=>a+sm[g][i],0));const mx=Math.max(...tot);
   const mid=RH/2-6,k=(RH-90)/mx;
@@ -567,29 +597,30 @@ function buildRiver(){const svg=document.getElementById("yr-svg");const N=Y1-Y0+
   for(let y=1965;y<=2025;y+=5){const x=RX(y);s+='<line class="yr-grid" x1="'+x+'" x2="'+x+'" y1="18" y2="'+(RH-24)+'"/>'+(y%10===0?'<text class="yr-tick" x="'+x+'" y="'+(RH-8)+'">'+y+'</text>':'')}
   YG.forEach(g=>{const top=pt(bands[g].hi),bot=pt(bands[g].lo).reverse();let d=smooth(top);d+=" L"+bot[0][0]+" "+bot[0][1];d+=smooth(bot).replace(/^M[^C]*/,"");d+="Z";
     s+='<path class="yr-band" d="'+d+'" style="fill:var('+YGC[g]+')"/>'});
-  songs.forEach((t,i)=>{if(!(t.y>=Y0))return;const g=grp(t.g),b=bands[g],ix=t.y-Y0;const j=hash(t.t+t.a)-.5,j2=hash(t.a+t.t);
+  const all=YS();all.forEach((t,i)=>{if(!(t.y>=Y0))return;const g=grp(t.g),b=bands[g],ix=t.y-Y0;const j=hash(t.t+t.a)-.5,j2=hash(t.a+t.t);
     const x=RX(t.y+j*.7);const lo=b.lo[ix],hi=b.hi[ix];const y=lo+(hi-lo)*(.18+.64*j2);
-    s+='<circle class="yr-dot" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.2" style="stroke:var('+YGC[g]+')" data-i="'+i+'"><title>'+esc(t.t+" — "+t.a+" ("+t.y+")")+'</title></circle>'});
+    s+='<circle class="yr-dot'+(t.x?" x":"")+'" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.2" style="stroke:var('+YGC[g]+')" data-i="'+i+'"><title>'+esc(t.t+" — "+t.a+" ("+t.y+")")+'</title></circle>'});
   s+='<line id="yr-cursor" class="yr-cursor" y1="10" y2="'+(RH-22)+'"/><text id="yr-cursor-t" class="yr-cursor-t" y="12"></text>';
   svg.setAttribute("viewBox","0 0 "+RW+" "+RH);svg.innerHTML=s;
   svg.onclick=e=>{const r=svg.getBoundingClientRect();const x=(e.clientX-r.left)/r.width*RW;setYear(Math.round(Y0+(x-40)/(RW-80)*(Y1-Y0)))};
-  const lg=document.getElementById("yr-legend");lg.innerHTML=YG.map(g=>'<span><i style="background:var('+YGC[g]+')"></i>'+esc(g==="OT"?L().other:L().ctry[g])+'</span>').join("")}
+  const lg=document.getElementById("yr-legend");lg.innerHTML=YG.map(g=>'<span><i style="background:var('+YGC[g]+')"></i>'+esc(g==="OT"?L().other:L().ctry[g])+'</span>').join("")+'<span class="dk"><i class="d1"></i>'+esc(L().dotP)+'</span><span class="dk"><i class="d2"></i>'+esc(L().dotX)+'</span>';
+  const tg=document.getElementById("yr-x");tg.checked=showX;document.getElementById("yr-x-l").textContent=L().xToggle}
 function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 function setYear(y){ySel=Math.max(Y0,Math.min(Y1,y));const r=document.getElementById("yr-range");r.value=ySel;renderYear()}
 function renderYear(){const D=L(),x=RX(ySel);const c=document.getElementById("yr-cursor"),ct=document.getElementById("yr-cursor-t");
   if(c){c.setAttribute("x1",x);c.setAttribute("x2",x);ct.setAttribute("x",x);ct.textContent=ySel}
-  document.querySelectorAll(".yr-dot").forEach(d=>{const s=songs[+d.dataset.i];d.classList.toggle("on",Math.abs(s.y-ySel)<=1)});
+  document.querySelectorAll(".yr-dot").forEach(d=>{const s=YS()[+d.dataset.i];d.classList.toggle("on",Math.abs(s.y-ySel)<=1)});
   document.querySelectorAll(".yr-chips button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.y===ySel));
   document.getElementById("yr-big").textContent=ySel;
   const f=FEAT[ySel];const fe=document.getElementById("yr-feat");fe.hidden=!f;if(f){fe.querySelector("p").textContent=f[lang]||f.en;fe.querySelector(".label").textContent=D.feat}
-  const near=songs.filter(s=>Math.abs(s.y-ySel)<=1);const cols=document.getElementById("yr-cols");
+  const near=YS().filter(s=>Math.abs(s.y-ySel)<=1);const cols=document.getElementById("yr-cols");
   if(!near.length){cols.innerHTML='<p class="yr-empty">'+esc(D.empty)+'</p>';return}
   const by={};near.forEach(s=>{(by[s.g]=by[s.g]||[]).push(s)});
   const order=Object.keys(by).sort((a,b)=>(YG.indexOf(grp(a))-YG.indexOf(grp(b)))||by[b].length-by[a].length);
   cols.innerHTML=order.map(k=>{const list=by[k].sort((a,b)=>Math.abs(a.y-ySel)-Math.abs(b.y-ySel)||a.y-b.y);
     return '<section style="--c:var('+(COLOR[k]||"--blue")+')"><h3>'+esc(D.ctry[k]||k)+'<small>'+list.length+'</small></h3><ol>'+list.map(s=>
-      '<li class="'+(s.y===ySel?"ex":"")+'"><a href="'+esc(s.url)+'" target="_blank" rel="noopener"><span class="yy">'+s.y+'</span><span class="tt">'+esc(s.t)+'<span class="ar">'+esc(s.a)+'</span></span></a></li>').join("")+'</ol></section>'}).join("")}
-function initYear(){const chips=document.getElementById("yr-chips");chips.innerHTML=Object.entries(FEAT).map(([y,f])=>'<button type="button" class="yr-chip" data-y="'+y+'">'+esc(f.chip)+'</button>').join("");
+      '<li class="'+(s.y===ySel?"ex":"")+(s.x?" xp":"")+'"><a href="'+esc(s.url)+'" target="_blank" rel="noopener"><span class="yy">'+s.y+'</span><span class="tt">'+esc(s.t)+(s.x?'<b class="xt">'+esc(D.xTag)+'</b>':'')+'<span class="ar">'+esc(s.a)+'</span></span></a></li>').join("")+'</ol></section>'}).join("")}
+function initYear(){document.getElementById("yr-x").addEventListener("change",e=>{showX=e.target.checked;buildRiver();renderYear()});const chips=document.getElementById("yr-chips");chips.innerHTML=Object.entries(FEAT).map(([y,f])=>'<button type="button" class="yr-chip" data-y="'+y+'">'+esc(f.chip)+'</button>').join("");
   chips.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>setYear(+b.dataset.y)));
   const r=document.getElementById("yr-range");r.min=Y0;r.max=Y1;r.value=ySel;r.addEventListener("input",()=>{ySel=+r.value;renderYear()});
   document.getElementById("yr-prev").addEventListener("click",()=>setYear(ySel-1));document.getElementById("yr-next").addEventListener("click",()=>setYear(ySel+1))}
