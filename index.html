@@ -225,6 +225,22 @@ footer a{font-family:var(--f-body);text-transform:none;font-size:13px;background
 .yr-cols .xt{display:inline-block;margin-left:6px;font-family:var(--f-body);font-weight:400;font-size:10.5px;color:var(--blue);background:var(--sky-2);padding:1px 7px;border-radius:99px;vertical-align:2px}
 .yr-cols li.xp .tt{color:var(--ink-2)}
 .yr-empty{margin:0;color:var(--ink-2)}
+
+/* random playlist */
+.rp-btn{appearance:none;border:0;background:var(--navy);color:#fff;font:400 13px/1 var(--f-body);padding:10px 16px;border-radius:99px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 0 16px rgba(255,255,255,.9)}
+:lang(ja) .rp-btn{font-family:var(--f-ja)} :lang(zh) .rp-btn{font-family:var(--f-zh)}
+.rp-btn::before{content:"♪";color:#9ff0b8}
+.rp-btn:hover{background:var(--blue)}
+.rp-modal{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(70,99,143,.35);backdrop-filter:blur(6px);padding:16px}
+.rp-modal[hidden]{display:none}
+.rp-box{width:min(440px,100%);background:#fff;border-radius:28px;padding:24px;box-shadow:0 0 50px rgba(255,255,255,.95)}
+.rp-box h3{margin:0 0 10px;font-family:var(--f-round);font-weight:400;font-size:18px;color:var(--blue);text-transform:lowercase}
+.rp-box p{margin:0 0 10px;font-size:14px;line-height:1.7;color:var(--navy)}
+.rp-box .rp-sub{color:var(--ink-2);font-size:12px;overflow-wrap:anywhere}
+.rp-bar{height:6px;background:var(--sky-2);border-radius:6px;overflow:hidden;margin:6px 0 4px}.rp-bar i{display:block;height:100%;width:0;background:var(--blue);transition:width .2s}
+.rp-act{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.rp-b{appearance:none;border:0;background:var(--sky-2);color:var(--blue);font:400 13px/1 var(--f-body);padding:11px 16px;border-radius:99px;cursor:pointer;text-decoration:none}
+.rp-b.pri{background:var(--blue);color:#fff}
 </style>
 </head>
 <body>
@@ -264,6 +280,7 @@ footer a{font-family:var(--f-body);text-transform:none;font-size:13px;background
     <div class="seg" role="group" id="seg"><button type="button" id="m-world" aria-pressed="true" data-i="world"></button><button type="button" id="m-grid" aria-pressed="false" data-i="grid"></button></div>
     <div class="group" id="moods"><span class="label">mood</span></div>
     <input class="search" id="q" type="search">
+    <button type="button" class="rp-btn" id="rp-world"></button>
     <div class="group" id="ctrys" style="flex-basis:100%"><span class="label">country</span></div>
   </div>
 
@@ -298,6 +315,7 @@ footer a{font-family:var(--f-body);text-transform:none;font-size:13px;background
       <input type="range" id="yr-range" aria-label="year">
       <button type="button" class="yr-step" id="yr-next" aria-label="next year">›</button>
       <div class="yr-chips" id="yr-chips"></div>
+      <button type="button" class="rp-btn" id="rp-year"></button>
       <label class="yr-tg"><input type="checkbox" id="yr-x" checked> <span id="yr-x-l"></span></label>
     </div>
     <div class="yr-card">
@@ -631,6 +649,90 @@ function route(){const v=location.hash==="#year"?"year":"world";document.getElem
   else{requestAnimationFrame(()=>{window.dispatchEvent(new Event("resize"))})}}
 addEventListener("hashchange",route);
 
+
+const RP_SITE="my band";
+/* =================== RANDOM SPOTIFY PLAYLIST =================== */
+/* Spotify Web API, Authorization Code + PKCE (no secret in the page). Set SP_CLIENT_ID to the Client ID of the
+   Spotify app whose Redirect URIs include this page's URL (origin + path, no hash). */
+const SP_CLIENT_ID="__CLIENT_ID__";
+const SP_REDIRECT=location.origin+location.pathname.replace(/index\.html$/,"");
+const SP_SCOPES="playlist-modify-private playlist-modify-public";
+const RP_N=30;
+const RPUI={
+ ko:{btn:"랜덤 플레이리스트 생성",title:"랜덤 플레이리스트",go:"Spotify로 이동해서 로그인하면, 이 탭의 곡 중 무작위 30곡으로 내 Spotify에 새 플레이리스트를 만들어요.",start:"Spotify로 이동",cancel:"닫기",
+  find:"곡을 Spotify에서 찾는 중…",make:"플레이리스트를 만드는 중…",done:"완성됐어요. Spotify에서 열게요.",open:"Spotify에서 열기",
+  noid:"아직 Spotify 앱이 연결되지 않았어요. 사이트 관리자가 Client ID를 설정하면 쓸 수 있어요.",fail:"플레이리스트를 만들지 못했어요",denied:"Spotify 로그인이 취소됐어요.",notallowed:"이 Spotify 계정은 아직 앱 사용자로 등록되지 않았어요. 관리자에게 등록을 요청해 주세요.",found:"곡 찾음"},
+ ja:{btn:"ランダムプレイリストを作成",title:"ランダムプレイリスト",go:"Spotifyに移動してログインすると、このタブの曲からランダムに30曲を選んで、あなたのSpotifyに新しいプレイリストを作ります。",start:"Spotifyへ移動",cancel:"閉じる",
+  find:"Spotifyで曲を探しています…",make:"プレイリストを作成しています…",done:"完成しました。Spotifyで開きます。",open:"Spotifyで開く",
+  noid:"Spotifyアプリがまだ接続されていません。サイト管理者がClient IDを設定すると使えます。",fail:"プレイリストを作成できませんでした",denied:"Spotifyへのログインがキャンセルされました。",notallowed:"このSpotifyアカウントはまだアプリの利用者として登録されていません。管理者に登録を依頼してください。",found:"曲が見つかりました"},
+ en:{btn:"Make a random playlist",title:"Random playlist",go:"Sign in to Spotify and we'll pick 30 random songs from this tab and save them as a new playlist in your Spotify.",start:"Continue to Spotify",cancel:"Close",
+  find:"Finding the songs on Spotify…",make:"Creating the playlist…",done:"Done — opening it in Spotify.",open:"Open in Spotify",
+  noid:"The Spotify app isn't connected yet. It works once the site owner sets the Client ID.",fail:"Couldn't create the playlist",denied:"Spotify sign-in was cancelled.",notallowed:"This Spotify account isn't registered as a user of the app yet. Ask the site owner to add it.",found:"songs found"},
+ zh:{btn:"生成随机歌单",title:"随机歌单",go:"登录Spotify后，将从本页歌曲中随机挑选30首，在你的Spotify里新建一个歌单。",start:"前往Spotify",cancel:"关闭",
+  find:"正在Spotify中查找歌曲…",make:"正在创建歌单…",done:"完成了，正在Spotify中打开。",open:"在Spotify中打开",
+  noid:"尚未连接Spotify应用。网站管理员设置Client ID后即可使用。",fail:"无法创建歌单",denied:"已取消Spotify登录。",notallowed:"该Spotify账号尚未登记为应用用户，请联系管理员添加。",found:"首歌曲已找到"}
+};
+Object.keys(RPUI).forEach(k=>Object.assign(I18N[k],{rp:RPUI[k]}));
+const RPT=()=>L().rp;
+function rpEsc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function rpModal(html,actions){let m=document.getElementById("rp-modal");if(!m){m=document.createElement("div");m.id="rp-modal";m.className="rp-modal";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");document.body.append(m)}
+  m.innerHTML='<div class="rp-box">'+html+'<div class="rp-act"></div></div>';const act=m.querySelector(".rp-act");
+  (actions||[]).forEach(([label,fn,primary])=>{const b=document.createElement(fn&&fn.href?"a":"button");b.className="rp-b"+(primary?" pri":"");b.textContent=label;if(fn&&fn.href){b.href=fn.href;b.target="_blank";b.rel="noopener"}else{b.type="button";b.onclick=fn||rpClose}act.append(b)});
+  m.hidden=false;const f=act.querySelector(".pri")||act.querySelector("button");f&&f.focus()}
+function rpClose(){const m=document.getElementById("rp-modal");if(m)m.hidden=true}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")rpClose()});
+function rpShuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function b64url(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+function rpRand(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return b64url(a).slice(0,n)}
+function rpStore(k,v){try{v==null?sessionStorage.removeItem(k):sessionStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function rpLoad(k){try{return JSON.parse(sessionStorage.getItem(k)||"null")}catch(e){return null}}
+/* entry point: label = tab name for the playlist title, pool = [{t,a,id?}] */
+function rpOpen(label,pool){const T=RPT();
+  if(!SP_CLIENT_ID||SP_CLIENT_ID.startsWith("__")){rpModal('<h3>'+rpEsc(T.title)+'</h3><p>'+rpEsc(T.noid)+'</p>',[[T.cancel,null,true]]);return}
+  const uniq=[];const seen=new Set();pool.forEach(s=>{const k=(s.id||(s.t+"|"+s.a)).toLowerCase();if(!seen.has(k)){seen.add(k);uniq.push(s)}});
+  rpModal('<h3>'+rpEsc(T.title)+' · '+rpEsc(label)+'</h3><p>'+rpEsc(T.go)+'</p><p class="rp-sub">'+uniq.length+' songs</p>',[[T.cancel,null],[T.start,()=>rpAuth(label,uniq),true]])}
+async function rpAuth(label,pool){const tok=rpLoad("rp-token");const job={label,pool:rpShuffle(pool).slice(0,Math.min(pool.length,RP_N*2)).map(s=>({t:s.t,a:s.a,id:s.id||null})),lang,hash:location.hash};
+  rpStore("rp-job",job);
+  if(tok&&tok.exp>Date.now()+60000){rpRun(tok.access);return}
+  const verifier=rpRand(64),state=rpRand(16);rpStore("rp-pkce",{verifier,state});
+  const ch=b64url(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(verifier)));
+  const q=new URLSearchParams({client_id:SP_CLIENT_ID,response_type:"code",redirect_uri:SP_REDIRECT,scope:SP_SCOPES,code_challenge_method:"S256",code_challenge:ch,state});
+  location.href="https://accounts.spotify.com/authorize?"+q}
+async function rpReturn(){const p=new URLSearchParams(location.search);if(!p.has("code")&&!p.has("error"))return;
+  const pk=rpLoad("rp-pkce"),job=rpLoad("rp-job");history.replaceState(null,"",SP_REDIRECT+(job&&job.hash||""));
+  if(job&&job.lang&&I18N[job.lang]&&job.lang!==lang)applyLang(job.lang);
+  const T=RPT();if(job&&job.hash&&typeof route==="function")route();
+  if(p.has("error")||!pk||p.get("state")!==pk.state){rpModal('<h3>'+rpEsc(T.title)+'</h3><p>'+rpEsc(T.denied)+'</p>',[[T.cancel,null,true]]);return}
+  rpModal('<h3>'+rpEsc(T.title)+'</h3><p class="rp-st">'+rpEsc(T.find)+'</p>');
+  try{const r=await fetch("https://accounts.spotify.com/api/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+      body:new URLSearchParams({client_id:SP_CLIENT_ID,grant_type:"authorization_code",code:p.get("code"),redirect_uri:SP_REDIRECT,code_verifier:pk.verifier})});
+    const j=await r.json();if(!r.ok)throw new Error(j.error_description||j.error||r.status);
+    rpStore("rp-token",{access:j.access_token,exp:Date.now()+j.expires_in*1000});rpStore("rp-pkce",null);rpRun(j.access_token)}
+  catch(e){rpModal('<h3>'+rpEsc(T.fail)+'</h3><p class="rp-sub">'+rpEsc(e.message)+'</p>',[[T.cancel,null,true]])}}
+async function rpApi(tok,path,opt){const r=await fetch("https://api.spotify.com/v1"+path,Object.assign({},opt,{headers:Object.assign({Authorization:"Bearer "+tok,"Content-Type":"application/json"},(opt||{}).headers)}));
+  if(r.status===429){await new Promise(x=>setTimeout(x,(+r.headers.get("Retry-After")||2)*1000));return rpApi(tok,path,opt)}
+  const txt=await r.text();let j=null;try{j=txt?JSON.parse(txt):null}catch(e){}
+  if(!r.ok){const err=new Error((j&&j.error&&j.error.message)||r.status);err.status=r.status;throw err}return j}
+const rpClean=t=>String(t).replace(/\s*[\(\[]\s*(feat|ft|with|prod|from)[^\)\]]*[\)\]]/gi,"").replace(/\s+-\s+.*$/,"").trim();
+async function rpFind(tok,s){if(s.id)return "spotify:track:"+s.id;const a=String(s.a).split(",")[0].trim(),t=rpClean(s.t);
+  for(const q of ['track:"'+t+'" artist:"'+a+'"',t+" "+a]){const j=await rpApi(tok,"/search?type=track&limit=1&q="+encodeURIComponent(q));const it=j&&j.tracks&&j.tracks.items&&j.tracks.items[0];if(it)return it.uri}return null}
+async function rpRun(tok){const job=rpLoad("rp-job"),T=RPT();if(!job)return;const st=()=>document.querySelector("#rp-modal .rp-st");
+  rpModal('<h3>'+rpEsc(T.title)+' · '+rpEsc(job.label)+'</h3><p class="rp-st">'+rpEsc(T.find)+'</p><div class="rp-bar"><i></i></div>');
+  const bar=()=>document.querySelector("#rp-modal .rp-bar i");
+  try{const uris=[];for(const s of job.pool){if(uris.length>=RP_N)break;let u=null;try{u=await rpFind(tok,s)}catch(e){if(e.status===401||e.status===403)throw e}
+      if(u&&!uris.includes(u))uris.push(u);if(bar())bar().style.width=(uris.length/RP_N*100)+"%";if(st())st().textContent=T.find+"  "+uris.length+"/"+RP_N}
+    if(st())st().textContent=T.make;
+    const d=new Date().toISOString().slice(0,10);
+    const pl=await rpApi(tok,"/me/playlists",{method:"POST",body:JSON.stringify({name:RP_SITE+" · "+job.label+" · Random "+uris.length+" ("+d+")",public:false,description:"Random "+uris.length+" from "+SP_REDIRECT})});
+    await rpApi(tok,"/playlists/"+pl.id+"/items",{method:"POST",body:JSON.stringify({uris})});
+    rpStore("rp-job",null);const url=pl.external_urls&&pl.external_urls.spotify||"https://open.spotify.com/playlist/"+pl.id;
+    rpModal('<h3>'+rpEsc(T.done)+'</h3><p class="rp-sub">'+rpEsc(pl.name)+'</p>',[[T.cancel,null],[T.open,{href:url},true]]);
+    setTimeout(()=>{location.href=url},1200)}
+  catch(e){if(e.status===401)rpStore("rp-token",null);rpModal('<h3>'+rpEsc(T.fail)+'</h3><p>'+rpEsc(e.status===403?T.notallowed:"")+'</p><p class="rp-sub">'+rpEsc(e.message)+'</p>',[[T.cancel,null,true]])}}
+
+document.getElementById("rp-world").addEventListener("click",()=>{const v=songs.filter(visible);rpOpen("World Map",(v.length?v:songs).map(s=>({t:s.t,a:s.a})))});
+document.getElementById("rp-year").addEventListener("click",()=>{rpOpen("Same Year, Different World",YS().map(s=>({t:s.t,a:s.a})))});
+
 /* language */
 function applyLang(l){lang=l;const D=L();document.documentElement.lang=l;
   document.querySelectorAll("[data-i]").forEach(el=>{el.textContent=D[el.dataset.i]});
@@ -643,9 +745,10 @@ function applyLang(l){lang=l;const D=L();document.documentElement.lang=l;
   songs.forEach(s=>s.el.setAttribute("aria-label",s.t+" — "+s.a+" ("+D.openIn+")"));
   if(selected)document.getElementById("c-m").textContent=meta(selected);
   document.querySelectorAll("#lang button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===l));
+  document.querySelectorAll(".rp-btn").forEach(b=>b.textContent=D.rp.btn);
   try{localStorage.setItem("myband-lang",l)}catch(e){}apply();if(!document.getElementById("v-year").hidden){buildRiver();renderYear()}}
 document.querySelectorAll("#lang button").forEach(b=>b.addEventListener("click",()=>applyLang(b.dataset.l)));
-applyLang(lang);route();
+applyLang(lang);route();rpReturn();
 
 place();
 const sc=document.getElementById("scroller");requestAnimationFrame(()=>{if(sc.scrollWidth>sc.clientWidth)sc.scrollLeft=(sc.scrollWidth-sc.clientWidth)*.75;else document.getElementById("m-hint").hidden=true});
